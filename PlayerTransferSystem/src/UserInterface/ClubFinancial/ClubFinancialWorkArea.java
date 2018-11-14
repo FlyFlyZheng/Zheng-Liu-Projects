@@ -1,0 +1,279 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package UserInterface.ClubFinancial;
+
+import System.ClubOrganization.ClubContract;
+import System.EcoSystem;
+import System.Enterprise.Club;
+import System.Enterprise.Enterprise;
+import System.Network.Network;
+import System.Organization.Organization;
+import System.UserAccount.UserAccount;
+import System.WorkRequest.EvaluateAPlayerRequest;
+import System.WorkRequest.FindPlayerListRequest;
+import System.WorkRequest.LoanRequest;
+import System.WorkRequest.TransferRequest;
+import System.WorkRequest.WorkRequest;
+import System.WorkRequest.WorkRequest.WorkRequestType;
+import UserInterface.BGPanel;
+import UserInterface.MoneyPanel;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author liufulai
+ */
+public class ClubFinancialWorkArea extends MoneyPanel {
+
+    /**
+     * Creates new form ClubFinancialWorkArea
+     */
+    private JPanel userProcessContainer;
+    private EcoSystem business;
+    private Network network;
+    private Club enterprise;  
+    private Organization organization;
+    private UserAccount account;
+    public ClubFinancialWorkArea(JPanel userProcessContainer, EcoSystem business, Network network, Enterprise enterprise, Organization organization, UserAccount account) {
+    
+        this.userProcessContainer = userProcessContainer;
+        this.enterprise = (Club)enterprise;
+        this.network = network;
+        this.organization = organization;
+        this.business = business;
+        this.account =account;
+        initComponents();
+        ShowInfo();
+        ShowTable();
+        this.txtTotalRevenue.setText(String.valueOf(this.enterprise.getRevenue()));
+    }
+
+    public void ShowInfo(){
+        labNetwork.setText(network.getName());
+        labEnterprise.setText(enterprise.getName());
+        labOrganization.setText(this.organization.getName());
+        labUserAccount.setText(account.getUsername());
+    }
+    
+    public void ShowTable(){
+        DefaultTableModel model = (DefaultTableModel) this.tblTransaction.getModel();
+        model.setRowCount(0);
+        Organization org=null;
+        for(Organization org1 : this.enterprise.getOrganizationDirectory().getOrganizationList()){
+            if(org1 instanceof ClubContract){
+                org = org1;
+                //System.out.println("org:"+org.getName());
+            }
+        }
+        if(org == null){
+            return;
+        }
+        for(UserAccount ua: org.getUserAccountDirectory().getUserAccountList()){
+            for(WorkRequest wr: ua.getWorkQueue().getWorkRequestList()){
+                if(wr.getStatus().equalsIgnoreCase("paid")){
+                    //System.out.println("I am in1");
+                    Object[] row = new Object[4];
+                    row[0] = wr.getId();
+                    row[1] = ua.getUsername();
+                    if(wr.getWorkRequestType().equals(WorkRequestType.EvaluateAPlayerRequest)||wr.getWorkRequestType().equals(WorkRequestType.FindPlayerListRequest)){
+                       row[2] = 0;
+                       row[3] = wr.getTotalprice();
+                    }
+                    else if(wr.getWorkRequestType().equals(WorkRequestType.TransferRequest)){
+                        //System.out.println("I am in2");
+                       if(wr.getSender().equals(ua)){
+                           row[2] = 0;
+                           row[3] = wr.getTotalprice();
+                       }
+                       else if(wr.getFirstReceiver().equals(ua)){
+                           TransferRequest transferwr = (TransferRequest)wr;
+                           double totalPrice = transferwr.getClubPrice()+transferwr.getAgentPrice()+transferwr.getClubPrice()*0.01;
+                           row[2] = totalPrice;
+                           row[3] = 0;
+                       }
+                    }
+                    else if(wr.getWorkRequestType().equals(WorkRequestType.LoanRequest)){
+                       if(wr.getSender().equals(ua)){
+                           row[2] = 0;
+                           row[3] = wr.getTotalprice();
+                       }
+                       else if(wr.getFirstReceiver().equals(ua)){
+                           LoanRequest transferwr = (LoanRequest)wr;
+                           double totalPrice = transferwr.getClubPrice()+transferwr.getAgentPrice()+transferwr.getClubPrice()*0.01;
+                           row[2] = totalPrice;
+                           row[3] = 0;
+                       }
+                    }
+                    //Free Transfer  
+                     model.addRow(row);
+                }  
+            }
+        }
+    }
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel10 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        labNetwork = new javax.swing.JLabel();
+        labOrganization = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        labEnterprise = new javax.swing.JLabel();
+        labUserAccount = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        txtTotalRevenue = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblTransaction = new javax.swing.JTable();
+
+        jLabel10.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        jLabel10.setText("NetWork:");
+
+        jLabel14.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        jLabel14.setText("Organization:");
+
+        jLabel7.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        jLabel7.setText("Enterprise:");
+
+        jLabel9.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        jLabel9.setText("UserAccount:");
+
+        jLabel1.setFont(new java.awt.Font("Muna", 1, 18)); // NOI18N
+        jLabel1.setText("Total Revenue:");
+
+        txtTotalRevenue.setFont(new java.awt.Font("Muna", 1, 18)); // NOI18N
+        txtTotalRevenue.setText("<>");
+
+        jLabel3.setFont(new java.awt.Font("Muna", 1, 18)); // NOI18N
+        jLabel3.setText("History Transaction");
+
+        tblTransaction.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Type", "UserAccount", "Profit", "cost"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, false, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblTransaction);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addGap(30, 30, 30)
+                        .addComponent(labNetwork, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(122, 122, 122)
+                                .addComponent(labEnterprise, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(labUserAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(labOrganization, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel9))))
+                .addContainerGap(66, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(27, 27, 27)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel3)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel1)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtTotalRevenue)))
+                            .addGap(414, 414, 414))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addGap(16, 16, 16)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(28, Short.MAX_VALUE)))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labEnterprise, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(labUserAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel9))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel10)
+                                .addComponent(labNetwork, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(labOrganization, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel14)))))
+                .addContainerGap(428, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(85, 85, 85)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1)
+                        .addComponent(txtTotalRevenue))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jLabel3)
+                    .addGap(18, 18, 18)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(181, Short.MAX_VALUE)))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel labEnterprise;
+    private javax.swing.JLabel labNetwork;
+    private javax.swing.JLabel labOrganization;
+    private javax.swing.JLabel labUserAccount;
+    private javax.swing.JTable tblTransaction;
+    private javax.swing.JLabel txtTotalRevenue;
+    // End of variables declaration//GEN-END:variables
+}
